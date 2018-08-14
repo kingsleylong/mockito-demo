@@ -19,10 +19,10 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class PersonFacadeTest {
     @Mock
-    PersonService personService;
+    PersonService personService; //依赖的类
 
     @InjectMocks
-    PersonFacadeImpl personFacade;
+    PersonFacadeImpl personFacade; //被测试的类
 
     @Mock
     private AmqpTemplate amqpTemplate;
@@ -31,22 +31,23 @@ public class PersonFacadeTest {
     public void makePerson() throws Exception {
         when(personService.makePerson(any(Person.class))).thenReturn(true);
         boolean status = personFacade.makePerson(new Person());
-        verifyZeroInteractions(personService);
+        verify(personService, times(1)).makePerson(any(Person.class));
+//        verifyZeroInteractions(personService);
 
         ArgumentCaptor<Person> personArgumentCaptor = ArgumentCaptor.forClass(Person.class);
         verify(personService).makePerson(personArgumentCaptor.capture());
         System.out.println(personArgumentCaptor.getAllValues());
         verify(personService, never()).findPersonByName(anyString());
-        verify(personService, times(2)).makePerson(any(Person.class));
+//        verify(personService, times(2)).makePerson(any(Person.class));
 //        verifyNoMoreInteractions(personService);
         System.out.println(status);
     }
 
     @Test
     public void findPersonByName() throws Exception {
-        when(personService.findPersonByName(anyString())).thenReturn(any(Person.class));
-        Person personByName = personService.findPersonByName("test");
-        verifyZeroInteractions(personService);
+        when(personService.findPersonByName(anyString())).thenReturn(new Person());
+        Person personByName = personFacade.findPersonByName("test");
+//        verifyZeroInteractions(personService);
         System.out.println(personByName);
     }
 
